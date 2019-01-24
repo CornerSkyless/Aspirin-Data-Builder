@@ -24,6 +24,13 @@ import 'codemirror/addon/edit/matchbrackets.js'
 import 'codemirror/addon/display/placeholder.js'
 
 import 'codemirror/theme/material.css'
+import 'codemirror/theme/neo.css'
+import 'codemirror/theme/dracula.css'
+import 'codemirror/theme/midnight.css'
+import 'codemirror/theme/eclipse.css'
+import 'codemirror/theme/monokai.css'
+import 'codemirror/theme/blackboard.css'
+import 'codemirror/theme/tomorrow-night-bright.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios

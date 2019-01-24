@@ -30,9 +30,10 @@
       methods: {},
       computed: {
         editorOptions () {
-          let options = {
+          return {
             tabSize: 4,
             theme: 'material',
+            mode: {name: 'text/x-c++src'},
             placeholder: '输入你的代码',
             lineNumbers: true,
             line: true,
@@ -43,8 +44,6 @@
             matchBrackets: true,
             highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true}
           }
-          options.mode = 'text/x-c++src'
-          return options
         }
 
       },
