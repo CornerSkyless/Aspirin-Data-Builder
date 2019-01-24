@@ -6,9 +6,12 @@
         </div>
         <div class="menu-item menu-item-group-active"><a-icon type="copy" />输入文件列表</div>
         <div class="menu-item-group">
-            <div class="menu-item menu-item"><a-icon type="file" />文件1</div>
-            <div class="menu-item menu-item-active"><a-icon type="code-sandbox" />文件2</div>
-            <div class="menu-item menu-item"><a-icon type="code-sandbox" />文件3</div>
+            <div class="menu-item menu-item"
+                 v-for="(inputFile,i) in $store.state.inputFileList"
+                 :class="{'menu-item-active':$store.state.activePanel==='InputFile' && $store.state.activeInputFileIndex === i}"
+                 @click="goToInputFile(i)">
+                <a-icon :type="inputFile.type==='manual' ? 'file' : 'code-sandbox'" />文件 {{i+1}}
+            </div>
         </div>
     </div>
 </template>
@@ -19,6 +22,11 @@
       methods: {
         async goToRightCode () {
           await this.$store.dispatch('updateActivePanel', 'RightCode')
+          await this.$store.dispatch('updateActiveInputFileIndex', null)
+        },
+        async goToInputFile (index) {
+          await this.$store.dispatch('updateActiveInputFileIndex', index)
+          await this.$store.dispatch('updateActivePanel', 'InputFile')
         }
       }
     }
@@ -46,7 +54,6 @@
             padding: 12px 20px;
             opacity: .65;
             color: white;
-            transition: opacity .3s cubic-bezier(.645, .045, .355, 1) .3s;
             cursor: pointer;
             i{
                 margin-right: 10px;

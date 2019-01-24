@@ -15,8 +15,8 @@
           get () {
             return this.$store.state.rightCode
           },
-          async set  (value) {
-            await this.$store.dispatch('updateRightCode', value)
+          set  (value) {
+            this.$store.dispatch('updateRightCode', value)
           }
         }
       }
@@ -25,7 +25,7 @@
 
 <style scoped lang="scss">
     .right-code-panel {
-        padding: 20px;
+        padding: 52px 20px 0 20px;
     }
 
 </style>

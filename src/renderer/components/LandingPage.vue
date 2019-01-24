@@ -5,7 +5,8 @@
             <SideBar/>
             <div class="app-right">
                 <HeaderBar/>
-                <RightCodePanel/>
+                <RightCodePanel v-if="$store.state.activePanel==='RightCode'"/>
+                <InputFilePanel v-if="$store.state.activePanel==='InputFile'"/>
             </div>
         </div>
     </div>
@@ -15,11 +16,12 @@
     import TopBar from './TopBar'
     import SideBar from './SideBar'
     import HeaderBar from './HeaderBar'
-    import RightCodePanel from './rightCodePanel'
+    import RightCodePanel from './RightCodePanel'
+    import InputFilePanel from './InputFilePanel'
 
     export default {
       name: 'landing-page',
-      components: {RightCodePanel, HeaderBar, SideBar, TopBar},
+      components: {InputFilePanel, RightCodePanel, HeaderBar, SideBar, TopBar},
       methods: {
         open (link) {
           this.$electron.shell.openExternal(link)

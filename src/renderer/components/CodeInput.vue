@@ -5,7 +5,7 @@
 </template>
 <style>
     .CodeMirror {
-        height: 460px!important;
+        height: 450px!important;
         min-height: 100%;
         overflow-y: hidden;
     }
