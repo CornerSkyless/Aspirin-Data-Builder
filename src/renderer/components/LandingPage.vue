@@ -5,20 +5,21 @@
             <SideBar/>
             <div class="app-right">
                 <HeaderBar/>
+                <RightCodePanel/>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import SystemInformation from './LandingPage/SystemInformation'
     import TopBar from './TopBar'
     import SideBar from './SideBar'
     import HeaderBar from './HeaderBar'
+    import RightCodePanel from './rightCodePanel'
 
     export default {
       name: 'landing-page',
-      components: {HeaderBar, SideBar, TopBar, SystemInformation},
+      components: {RightCodePanel, HeaderBar, SideBar, TopBar},
       methods: {
         open (link) {
           this.$electron.shell.openExternal(link)

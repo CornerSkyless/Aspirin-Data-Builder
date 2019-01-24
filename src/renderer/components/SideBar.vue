@@ -1,7 +1,9 @@
 <template>
     <div class="app-side-bar">
         <div class="logo">LOGO</div>
-        <div class="menu-item"><a-icon type="code" />标程</div>
+        <div class="menu-item" @click="goToRightCode" :class="{'menu-item-active':$store.state.activePanel==='RightCode'}">
+            <a-icon type="code" />标程
+        </div>
         <div class="menu-item menu-item-group-active"><a-icon type="copy" />输入文件列表</div>
         <div class="menu-item-group">
             <div class="menu-item menu-item"><a-icon type="file" />文件1</div>
@@ -14,7 +16,11 @@
 <script>
     export default {
       name: 'SideBar',
-      methods: {}
+      methods: {
+        async goToRightCode () {
+          await this.$store.dispatch('updateActivePanel', 'RightCode')
+        }
+      }
     }
 </script>
 

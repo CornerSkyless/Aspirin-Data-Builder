@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import { createPersistedState, createSharedMutations } from 'vuex-electron'
+import {createPersistedState, createSharedMutations} from 'vuex-electron'
 
 import modules from './modules'
 
@@ -9,22 +9,25 @@ Vue.use(Vuex)
 
 const state = {
   fileLocation: '',
-  rightCode: ''
+  rightCode: '',
+  activePanel: 'RightCode'
 }
 
 const mutations = {
-  DECREMENT_MAIN_COUNTER (state) {
-    state.main--
+  updateRightCode (state, value) {
+    state.rightCode = value
   },
-  INCREMENT_MAIN_COUNTER (state) {
-    state.main++
+  updateActivePanel (state, value) {
+    state.activePanel = value
   }
 }
 
 const actions = {
-  someAsyncTask ({ commit }) {
-    // do something async
-    commit('INCREMENT_MAIN_COUNTER')
+  updateRightCode ({commit}, value) {
+    commit('updateRightCode', value)
+  },
+  updateActivePanel ({commit}, value) {
+    commit('updateActivePanel', value)
   }
 }
 export default new Vuex.Store({
