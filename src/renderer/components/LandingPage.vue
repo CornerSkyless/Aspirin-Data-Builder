@@ -1,16 +1,18 @@
 <template>
     <div id="wrapper">
         <TopBar/>
+        <SideBar/>
     </div>
 </template>
 
 <script>
     import SystemInformation from './LandingPage/SystemInformation'
     import TopBar from './TopBar'
+    import SideBar from './SideBar'
 
     export default {
       name: 'landing-page',
-      components: {TopBar, SystemInformation},
+      components: {SideBar, TopBar, SystemInformation},
       methods: {
         open (link) {
           this.$electron.shell.openExternal(link)
