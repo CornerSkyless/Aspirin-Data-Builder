@@ -1,7 +1,12 @@
 <template>
     <div id="wrapper">
         <TopBar/>
-        <SideBar/>
+        <div class="app-window">
+            <SideBar/>
+            <div class="app-right">
+                <HeaderBar/>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -9,10 +14,11 @@
     import SystemInformation from './LandingPage/SystemInformation'
     import TopBar from './TopBar'
     import SideBar from './SideBar'
+    import HeaderBar from './HeaderBar'
 
     export default {
       name: 'landing-page',
-      components: {SideBar, TopBar, SystemInformation},
+      components: {HeaderBar, SideBar, TopBar, SystemInformation},
       methods: {
         open (link) {
           this.$electron.shell.openExternal(link)
@@ -34,5 +40,14 @@
         font-family: 'Source Sans Pro', sans-serif;
     }
 
+    .app-window {
+        display: flex;
+
+        .app-right {
+            background: #eef0f3;
+            height: calc(100vh - 22px);
+            width: 100%;
+        }
+    }
 
 </style>
