@@ -11,7 +11,7 @@
             </a-button>
             <a-dropdown-button @click="saveProjectFile">
                 <a-icon type="save"/>
-                保存        {{$store.getters.projectName}}
+                保存
 
                 <a-menu slot="overlay" @click="anotherModal=true">
                     <a-menu-item key="1">
