@@ -1,6 +1,8 @@
 <template>
     <div class="app-side-bar">
-        <div class="logo">LOGO</div>
+        <div class="logo">
+            <img id="logo" src="~@/assets/logo.png" style="height: 50px">
+        </div>
         <div class="menu-item" @click="goToRightCode"
              :class="{'menu-item-active':$store.state.activePanel==='RightCode'}">
             <a-icon type="code"/>
@@ -55,6 +57,9 @@
             height: 100px;
             padding: 20px;
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .menu-item-head {
