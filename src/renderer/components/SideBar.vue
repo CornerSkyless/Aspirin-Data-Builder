@@ -50,7 +50,7 @@
         height: calc(100vh - 22px);
         width: 300px;
         border-top: #00080F 1px solid;
-
+        overflow: hidden;
         .logo {
             height: 100px;
             padding: 20px;
@@ -61,15 +61,39 @@
             opacity: .65 !important;
             display: flex;
             justify-content: space-between;
-            align-items: center ;
+            align-items: center;
         }
 
         .menu-item-group {
             background: #000f16;
-
+            max-height: calc(100vh - 240px);
             .menu-item {
                 padding-left: 40px;
             }
+            overflow: auto;
+            &::-webkit-scrollbar
+            {
+                width: 5px;
+                height: 10px;
+                background-color: #F5F5F5;
+            }
+
+            /*定义滚动条轨道 内阴影+圆角*/
+            &::-webkit-scrollbar-track
+            {
+                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+                border-radius: 0;
+                background-color: black;
+            }
+
+            /*定义滑块 内阴影+圆角*/
+            &::-webkit-scrollbar-thumb
+            {
+                border-radius: 10px;
+                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+                background-color: #555;
+            }
+
         }
 
         .menu-item {
