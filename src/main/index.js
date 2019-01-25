@@ -1,6 +1,7 @@
 'use strict'
 
 import {app, BrowserWindow, ipcMain, dialog} from 'electron'
+const exec = require('child_process').exec
 
 const fs = require('fs')
 /**
@@ -114,6 +115,68 @@ ipcMain.on('save-acdb-file', (event, args) => {
     event.returnValue = {result: false, error: e}
   }
 })
+
+ipcMain.on('check-dictionary', (event, dic) => {
+  event.returnValue = fs.existsSync(dic)
+})
+
+ipcMain.on('make-dictionary', (event, dic) => {
+  fs.mkdirSync(dic)
+  event.returnValue = true
+})
+
+ipcMain.on('write-text-input-file', (event, {text, location}) => {
+  fs.writeFileSync(location, text, 'utf-8')
+  event.returnValue = true
+})
+
+ipcMain.on('make-input-file', (event, {inputFile, index, dic}) => {
+  const options = {
+    encoding: 'utf8',
+    timeout: 10000
+  }
+
+  const cppPath = dic + index + '.cpp'
+  const exePath = dic + index
+  fs.writeFileSync(cppPath, inputFile.content, 'utf-8')
+  exec(`g++ -o2 ${cppPath} -o ${exePath}`, function (error, stdout, stderr) {
+    if (error) event.returnValue = {result: false, error: stderr}
+    else {
+      const inputFilePath = dic + index + '.in'
+      exec(`${exePath} >${inputFilePath} `, options, function (error, stdout, stderr) {
+        if (error) event.returnValue = {result: false, error: stderr}
+        fs.unlinkSync(cppPath)
+        fs.unlinkSync(exePath)
+        event.returnValue = {result: true}
+      })
+    }
+  })
+})
+
+ipcMain.on('make-right-code', (event, {rightCode, dic}) => {
+  const cppPath = dic + 'rightCode.cpp'
+  const exePath = dic + 'rightCode'
+  fs.writeFileSync(cppPath, rightCode, 'utf-8')
+  exec(`g++ -o2 ${cppPath} -o ${exePath}`, function (error, stdout, stderr) {
+    if (error) event.returnValue = {result: false, error: stderr}
+    event.returnValue = {result: true}
+  })
+})
+
+ipcMain.on('make-output-file', (event, {index, dic}) => {
+  const inputFilePath = dic + index + '.in'
+  const outputFilePath = dic + index + '.out'
+  const exePath = dic + 'rightCode'
+  const options = {
+    encoding: 'utf8',
+    timeout: 10000
+  }
+  exec(`${exePath} >${outputFilePath} < ${inputFilePath} `, options, function (error, stdout, stderr) {
+    if (error) event.returnValue = {result: false, error: stderr}
+    event.returnValue = {result: true}
+  })
+})
+
 /**
  * Auto Updater
  *

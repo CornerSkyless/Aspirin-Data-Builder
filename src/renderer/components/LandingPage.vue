@@ -9,6 +9,20 @@
                 <InputFilePanel v-if="$store.state.activePanel==='InputFile'"/>
             </div>
         </div>
+        <a-modal
+                v-model="isBuilding"
+                title="生成文件"
+                :maskClosable="false"
+                :footer="null"
+        >
+            <template slot="footer"></template>
+            <div style="text-align: center;margin-bottom: 10px">
+                <a-progress type="circle" :percent="$store.state.progress" :width="80" :status="status" />
+
+            </div>
+            <p v-if="!$store.state.buildError">{{$store.state.buildStatus}}</p>
+            <p>{{$store.state.buildError}}</p>
+        </a-modal>
     </div>
 </template>
 
@@ -22,10 +36,27 @@
     export default {
       name: 'landing-page',
       components: {InputFilePanel, RightCodePanel, HeaderBar, SideBar, TopBar},
+      computed: {
+        status () {
+          if (this.$store.state.buildError) return 'exception'
+          else return null
+        },
+        isBuilding: {
+          get () {
+            return this.$store.state.isBuilding
+          },
+          async set (value) {
+            await this.$store.dispatch('updateIsBuilding', value)
+          }
+        }
+      },
       methods: {
         open (link) {
           this.$electron.shell.openExternal(link)
         }
+      },
+      async created () {
+        await this.$store.dispatch('updateIsBuilding', false)
       }
     }
 </script>

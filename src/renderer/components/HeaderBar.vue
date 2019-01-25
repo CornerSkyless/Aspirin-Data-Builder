@@ -11,7 +11,8 @@
             </a-button>
             <a-dropdown-button @click="saveProjectFile">
                 <a-icon type="save"/>
-                保存
+                保存        {{$store.getters.projectName}}
+
                 <a-menu slot="overlay" @click="anotherModal=true">
                     <a-menu-item key="1">
                         <a-icon type="save"/>
@@ -19,7 +20,7 @@
                     </a-menu-item>
                 </a-menu>
             </a-dropdown-button>
-            <a-button type="primary">
+            <a-button type="primary" @click="build">
                 <a-icon type="export"/>
                 生成文件
             </a-button>
@@ -47,6 +48,7 @@
 </template>
 
 <script>
+    const {ipcRenderer} = require('electron')
     export default {
       name: 'HeaderBar',
       data () {
@@ -80,6 +82,19 @@
             await this.$message.success('保存成功')
           } catch (e) {
             await this.$message.error('保存失败：' + JSON.stringify(e.message))
+          }
+        },
+        async build () {
+          if (this.$store.getters.hasEmpty) await this.$message.error(this.$store.getters.hasEmpty)
+          else if (!(await ipcRenderer.sendSync('check-dictionary', this.$store.getters.fileDic))) await this.$message.error('项目文件目录不存在，请先尝试另存为项目')
+          else {
+            const res = await this.$store.dispatch('build')
+            if (res) {
+              this.$success({
+                title: '生成成功',
+                content: '文件已保存到目录：\n' + res
+              })
+            }
           }
         }
       }
