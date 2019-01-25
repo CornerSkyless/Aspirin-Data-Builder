@@ -1,7 +1,7 @@
 'use strict'
 
-import {app, BrowserWindow, ipcMain} from 'electron'
-
+import {app, BrowserWindow, ipcMain, dialog} from 'electron'
+const fs = require('fs')
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -57,6 +57,40 @@ ipcMain.on('minus-window', (event) => {
   event.returnValue = true
 })
 
+ipcMain.on('choose-acdb-file', (event) => {
+  dialog.showOpenDialog({
+    title: '选择项目文件',
+    properties: ['openFile']
+  }, function (files) {
+    if (files) event.returnValue = files
+    else event.returnValue = false
+  })
+})
+
+ipcMain.on('new-acdb-file', (event, args) => {
+  dialog.showOpenDialog({
+    title: '选择保存目录',
+    properties: ['openDirectory']
+  }, function (files) {
+    if (files) {
+      const dic = files[0]
+      const filePath = dic + '/' + args.projectName + '.acdb'
+      fs.writeFileSync(filePath, JSON.stringify(args.state))
+      event.returnValue = filePath
+    } else event.returnValue = false
+  })
+})
+
+ipcMain.on('save-acdb-file', (event, args) => {
+  try {
+    const filePath = args.filePath
+    const content = JSON.stringify(args.state)
+    fs.writeFileSync(filePath, content)
+    event.returnValue = {result: true}
+  } catch (e) {
+    event.returnValue = {result: false, error: e}
+  }
+})
 /**
  * Auto Updater
  *

@@ -5,6 +5,8 @@ import {createPersistedState} from 'vuex-electron'
 
 import modules from './modules'
 
+const {ipcRenderer} = require('electron')
+
 Vue.use(Vuex)
 
 const state = {
@@ -31,8 +33,21 @@ const getters = {
 }
 
 const mutations = {
+  newState (state) {
+    state.rightCode = ''
+    state.activePanel = 'RightCode'
+    state.inputFileList = [
+      {type: 'manual', content: '', name: '文件 1'},
+      {type: 'manual', content: '', name: '文件 2'},
+      {type: 'code', content: '', name: '文件 3'}
+    ]
+    state.activeInputFileIndex = null
+  },
   updateRightCode (state, value) {
     state.rightCode = value
+  },
+  updateFileLocation (state, value) {
+    state.fileLocation = value
   },
   updateActivePanel (state, value) {
     state.activePanel = value
@@ -84,6 +99,41 @@ const actions = {
   },
   deleteActiveInputFile ({commit}) {
     commit('deleteActiveInputFile')
+  },
+  async openExistFile () {
+    const res = await ipcRenderer.sendSync('choose-acdb-file')
+    console.log(res)
+  },
+  async newProjectFile ({commit}, value) {
+    const newState = {
+      fileLocation: '',
+      rightCode: '',
+      activePanel: 'RightCode',
+      inputFileList: [
+        {type: 'manual', content: '', name: '文件 1'},
+        {type: 'manual', content: '', name: '文件 2'},
+        {type: 'manual', content: '', name: '文件 3'}
+      ],
+      activeInputFileIndex: null
+    }
+    let res = await ipcRenderer.sendSync('new-acdb-file', {projectName: value, state: newState})
+    if (res) {
+      commit('newState')
+      commit('updateFileLocation', res)
+    }
+  },
+  async saveProjectFile ({commit, state}) {
+    const res = await ipcRenderer.sendSync('save-acdb-file', {filePath: state.fileLocation, state})
+    if (!res.result) {
+      if (res.error.code === 'ENOENT') throw new Error('文件不存在，请尝试另存为')
+      throw new Error(res.error.code)
+    }
+  },
+  async anotherSaveProject ({commit, state}, value) {
+    let res = await ipcRenderer.sendSync('new-acdb-file', {projectName: value, state})
+    if (res) {
+      commit('updateFileLocation', res)
+    }
   }
 }
 export default new Vuex.Store({
