@@ -58,7 +58,11 @@
       },
       methods: {
         async openExistFile () {
-          await this.$store.dispatch('openExistFile')
+          try {
+            await this.$store.dispatch('openExistFile')
+          } catch (e) {
+            if (e.message) await this.$message.error('打开失败：' + e.message)
+          }
         },
         async newFile () {
           if (!this.projectName) await this.$message.error('项目名称不能为空')

@@ -33,6 +33,12 @@ const getters = {
 }
 
 const mutations = {
+  updateState (state, newState) {
+    state.rightCode = newState.rightCode
+    state.activePanel = newState.activePanel
+    state.inputFileList = newState.inputFileList
+    state.activeInputFileIndex = newState.activeInputFileIndex
+  },
   newState (state) {
     state.rightCode = ''
     state.activePanel = 'RightCode'
@@ -100,9 +106,14 @@ const actions = {
   deleteActiveInputFile ({commit}) {
     commit('deleteActiveInputFile')
   },
-  async openExistFile () {
+  async openExistFile ({commit}) {
     const res = await ipcRenderer.sendSync('choose-acdb-file')
-    console.log(res)
+    if (res.result) {
+      commit('updateState', res.state)
+      commit('updateFileLocation', res.filePath)
+    } else {
+      throw new Error(res.error)
+    }
   },
   async newProjectFile ({commit}, value) {
     const newState = {

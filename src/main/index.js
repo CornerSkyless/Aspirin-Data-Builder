@@ -1,6 +1,7 @@
 'use strict'
 
 import {app, BrowserWindow, ipcMain, dialog} from 'electron'
+
 const fs = require('fs')
 /**
  * Set `__static` path to static files in production
@@ -60,10 +61,32 @@ ipcMain.on('minus-window', (event) => {
 ipcMain.on('choose-acdb-file', (event) => {
   dialog.showOpenDialog({
     title: '选择项目文件',
-    properties: ['openFile']
+    properties: ['openFile'],
+    filters: [
+      {name: '数据生成器文件', extensions: ['acdb']}
+    ]
   }, function (files) {
-    if (files) event.returnValue = files
-    else event.returnValue = false
+    if (files) {
+      const filePath = files[0]
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8')
+        const state = JSON.parse(content)
+        event.returnValue = {
+          result: true,
+          state,
+          filePath
+        }
+      } catch (e) {
+        event.returnValue = {
+          result: false,
+          error: '访问权限不足或文件已损坏'
+        }
+      }
+    } else {
+      event.returnValue = {
+        result: false
+      }
+    }
   })
 })
 
