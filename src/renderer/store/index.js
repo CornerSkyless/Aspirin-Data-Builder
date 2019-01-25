@@ -12,9 +12,9 @@ const state = {
   rightCode: '',
   activePanel: 'RightCode',
   inputFileList: [
-    {type: 'manual', content: ''},
-    {type: 'manual', content: ''},
-    {type: 'manual', content: ''}
+    {type: 'manual', content: '', name: '文件 1'},
+    {type: 'manual', content: '', name: '文件 2'},
+    {type: 'manual', content: '', name: '文件 3'}
   ],
   activeInputFileIndex: null
 }
@@ -42,11 +42,19 @@ const mutations = {
   },
   updateActiveInputFileType (state, value) {
     state.inputFileList[state.activeInputFileIndex].type = value
-    state.inputFileList.splice(state.activeInputFileIndex, 1, state.inputFileList[state.activeInputFileIndex])
   },
   updateActiveInputFileContent (state, value) {
     state.inputFileList[state.activeInputFileIndex].content = value
-    state.inputFileList.splice(state.activeInputFileIndex, 1, state.inputFileList[state.activeInputFileIndex])
+  },
+  addInputFile (state) {
+    state.inputFileList.push({name: `文件   ${state.inputFileList.length + 1}`, content: '', type: 'manual'})
+  },
+  renameActiveInputFile (state, value) {
+    state.inputFileList[state.activeInputFileIndex].name = value
+  },
+  deleteActiveInputFile (state) {
+    if (state.activeInputFileIndex === state.inputFileList.length - 1) state.activeInputFileIndex--
+    state.inputFileList.splice(state.activeInputFileIndex + 1, 1)
   }
 }
 
@@ -65,6 +73,17 @@ const actions = {
   },
   updateActiveInputFileContent ({commit}, value) {
     commit('updateActiveInputFileContent', value)
+  },
+  addInputFile ({commit, state}) {
+    commit('addInputFile')
+    commit('updateActiveInputFileIndex', state.inputFileList.length - 1)
+    commit('updateActivePanel', 'InputFile')
+  },
+  renameActiveInputFile ({commit}, value) {
+    commit('renameActiveInputFile', value)
+  },
+  deleteActiveInputFile ({commit}) {
+    commit('deleteActiveInputFile')
   }
 }
 export default new Vuex.Store({
