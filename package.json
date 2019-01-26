@@ -1,6 +1,6 @@
 {
   "name": "aspirin-data-builder",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "author": "cornerskyless <573196853@qq.com>",
   "description": "Data Builder",
   "license": null,
@@ -19,7 +19,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "aspirin-data-builder",
+    "productName": "Aspirin Code Builder",
     "appId": "top.noi.data-builder",
     "directories": {
       "output": "build"

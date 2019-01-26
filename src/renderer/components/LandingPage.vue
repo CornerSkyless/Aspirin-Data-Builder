@@ -28,7 +28,7 @@
                 title="有新版本啦"
                 @ok="downloadNewest"
         >
-            <h3 style="margin-bottom: 15px">最新版本 {{latest.version}}</h3>
+            <h3 style="margin-bottom: 15px">当前版本 {{$store.state.version}} > 最新版本 {{latest.version}}</h3>
             <p v-for="update of latest.updates">{{update}}</p>
         </a-modal>
     </div>
