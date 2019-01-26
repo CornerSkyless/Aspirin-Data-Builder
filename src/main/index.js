@@ -216,7 +216,8 @@ ipcMain.on('make-input-file', (event, {inputFile, index, dic}) => {
       exec(`${exePath} >${inputFilePath} `, options, function (error, stdout, stderr) {
         if (error) event.returnValue = {result: false, error: stderr}
         fs.unlinkSync(cppPath)
-        fs.unlinkSync(exePath)
+        if (fs.existsSync(exePath)) fs.unlinkSync(exePath)
+        else fs.unlinkSync(exePath + '.exe')
         event.returnValue = {result: true}
       })
     }

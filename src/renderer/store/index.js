@@ -55,12 +55,14 @@ const getters = {
     return false
   },
   fileDic (state) {
-    const list = state.fileLocation.split('/')
+    const sp = process.platform === 'win32' ? `\\` : `/`
+    const list = state.fileLocation.split(sp)
     list.splice(list.length - 1, 1)
-    return list.join('/') + '/'
+    return list.join(sp) + sp
   },
   projectName (state) {
-    let list = state.fileLocation.split('/')
+    const sp = process.platform === 'win32' ? `\\` : `/`
+    let list = state.fileLocation.split(sp)
     const file = list[list.length - 1]
     list = file.split('.')
     list.splice(list.length - 1, 1)
@@ -217,6 +219,8 @@ const actions = {
     commit('updateIsBuilding', true)
     commit('updateBuildStatus', '正在创建目录')
     await delay(100)
+    console.log(getters.fileDic)
+    console.log(getters.projectName)
     const outputDic = getters.fileDic + getters.projectName + new Date().valueOf() + '/'
     await ipcRenderer.sendSync('make-dictionary', outputDic)
 
