@@ -1,10 +1,15 @@
 <template>
     <div class="input-file-panel">
         <div style="text-align: center;margin-bottom: 10px">
+
+            <span v-if="activeInputFileType==='code'">生成数量：</span>
+            <a-input-number v-if="activeInputFileType==='code'" :min="1" :max="50" v-model="activeInputFileCount" style="margin-right: 20px"/>
+
             <a-radio-group v-model="activeInputFileType" style="margin-right: 20px">
-                <a-radio-button value="manual">手动编写</a-radio-button>
-                <a-radio-button value="code">代码生成</a-radio-button>
+                <a-radio value="manual">手动编写</a-radio>
+                <a-radio value="code">代码生成</a-radio>
             </a-radio-group>
+
             <a-button-group>
                 <a-button @click="renameModal=true">重命名</a-button>
                 <a-button type="danger" @click="deleteActiveInputFile" v-if="$store.state.inputFileList.length>1">删除</a-button>
@@ -71,6 +76,14 @@
           },
           async set (value) {
             await this.$store.dispatch('updateActiveInputFileType', value)
+          }
+        },
+        activeInputFileCount: {
+          get () {
+            return this.$store.getters.activeInputFileCount
+          },
+          async set (value) {
+            await this.$store.dispatch('updateActiveInputFileCount', value)
           }
         }
       }

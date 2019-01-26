@@ -22,9 +22,9 @@ const state = {
   rightCode: '',
   activePanel: 'RightCode',
   inputFileList: [
-    {type: 'manual', content: '', name: '文件 1'},
-    {type: 'manual', content: '', name: '文件 2'},
-    {type: 'manual', content: '', name: '文件 3'}
+    {type: 'manual', content: '', name: '文件 1', count: 1},
+    {type: 'manual', content: '', name: '文件 2', count: 1},
+    {type: 'manual', content: '', name: '文件 3', count: 1}
   ],
   activeInputFileIndex: null,
   isBuilding: false,
@@ -40,6 +40,10 @@ const getters = {
   },
   activeInputFileContent (state) {
     if (state.activeInputFileIndex !== null) return state.inputFileList[state.activeInputFileIndex].content
+    return null
+  },
+  activeInputFileCount (state) {
+    if (state.activeInputFileIndex !== null) return state.inputFileList[state.activeInputFileIndex].count
     return null
   },
   hasEmpty (state) {
@@ -67,16 +71,19 @@ const mutations = {
   updateState (state, newState) {
     state.rightCode = newState.rightCode
     state.activePanel = newState.activePanel
-    state.inputFileList = newState.inputFileList
+    state.inputFileList = newState.inputFileList.map(i => {
+      if (i.type === 'code' && !i.count) i.count = 1
+      return i
+    })
     state.activeInputFileIndex = newState.activeInputFileIndex
   },
   newState (state) {
     state.rightCode = ''
     state.activePanel = 'RightCode'
     state.inputFileList = [
-      {type: 'manual', content: '', name: '文件 1'},
-      {type: 'manual', content: '', name: '文件 2'},
-      {type: 'code', content: '', name: '文件 3'}
+      {type: 'manual', content: '', name: '文件 1', count: 1},
+      {type: 'manual', content: '', name: '文件 2', count: 1},
+      {type: 'code', content: '', name: '文件 3', count: 1}
     ]
     state.activeInputFileIndex = null
   },
@@ -107,15 +114,22 @@ const mutations = {
   updateActiveInputFileContent (state, value) {
     state.inputFileList[state.activeInputFileIndex].content = value
   },
+  updateActiveInputFileCount (state, value) {
+    state.inputFileList[state.activeInputFileIndex].count = value
+  },
   addInputFile (state) {
-    state.inputFileList.push({name: `文件   ${state.inputFileList.length + 1}`, content: '', type: 'manual'})
+    state.inputFileList.push({name: `文件   ${state.inputFileList.length + 1}`, content: '', type: 'manual', count: 1})
   },
   renameActiveInputFile (state, value) {
     state.inputFileList[state.activeInputFileIndex].name = value
   },
   deleteActiveInputFile (state) {
-    if (state.activeInputFileIndex === state.inputFileList.length - 1) state.activeInputFileIndex--
-    state.inputFileList.splice(state.activeInputFileIndex + 1, 1)
+    if (state.activeInputFileIndex === state.inputFileList.length - 1) {
+      state.activeInputFileIndex--
+      state.inputFileList.splice(state.activeInputFileIndex + 1, 1)
+    } else {
+      state.inputFileList.splice(state.activeInputFileIndex, 1)
+    }
   },
   updateProgress (state, value) {
     state.progress = value
@@ -138,6 +152,9 @@ const actions = {
   },
   updateActiveInputFileContent ({commit}, value) {
     commit('updateActiveInputFileContent', value)
+  },
+  updateActiveInputFileCount ({commit}, value) {
+    commit('updateActiveInputFileCount', value)
   },
   addInputFile ({commit, state}) {
     commit('addInputFile')
@@ -168,9 +185,9 @@ const actions = {
       rightCode: '',
       activePanel: 'RightCode',
       inputFileList: [
-        {type: 'manual', content: '', name: '文件 1'},
-        {type: 'manual', content: '', name: '文件 2'},
-        {type: 'manual', content: '', name: '文件 3'}
+        {type: 'manual', content: '', name: '文件 1', count: 1},
+        {type: 'manual', content: '', name: '文件 2', count: 1},
+        {type: 'manual', content: '', name: '文件 3', count: 1}
       ],
       activeInputFileIndex: null
     }
@@ -202,21 +219,26 @@ const actions = {
     const outputDic = getters.fileDic + getters.projectName + new Date().valueOf() + '/'
     await ipcRenderer.sendSync('make-dictionary', outputDic)
 
+    let fileIndex = 0
     for (let i = 0; i < state.inputFileList.length && !state.buildError; i++) {
       const inputFile = state.inputFileList[i]
       if (inputFile.type === 'manual') {
         commit('updateBuildStatus', '正在写入输入文件：' + inputFile.name)
         await delay(100)
+        fileIndex++
         await ipcRenderer.sendSync('write-text-input-file', {
           text: inputFile.content,
-          location: outputDic + (i + 1) + '.in'
+          location: outputDic + fileIndex + '.in'
         })
       } else {
         commit('updateBuildStatus', '正在编译执行输入文件：' + inputFile.name)
         await delay(100)
-        const res = await ipcRenderer.sendSync('make-input-file', {inputFile, index: i + 1, dic: outputDic})
-        if (!res.result) {
-          commit('updateBuildError', inputFile.name + ': ' + (res.error || '执行失败或超时'))
+        for (let j = 0; j < inputFile.count; j++) {
+          fileIndex++
+          const res = await ipcRenderer.sendSync('make-input-file', {inputFile, index: fileIndex, dic: outputDic})
+          if (!res.result) {
+            commit('updateBuildError', inputFile.name + ': ' + (res.error || '执行失败或超时'))
+          }
         }
       }
       commit('updateProgress', Number((i / (state.inputFileList.length * 2) * 100).toFixed()))
@@ -229,14 +251,27 @@ const actions = {
       commit('updateBuildError', '标程编译失败: ' + (res.error || '执行失败或超时'))
     }
 
+    fileIndex = 0
     for (let i = 0; i < state.inputFileList.length && !state.buildError; i++) {
       const inputFile = state.inputFileList[i]
 
       commit('updateBuildStatus', '正在生成输出文件：' + inputFile.name)
       await delay(100)
-      const res = await ipcRenderer.sendSync('make-output-file', {index: i + 1, dic: outputDic})
-      if (!res.result) {
-        commit('updateBuildError', inputFile.name + ': ' + (res.error || '执行失败或超时'))
+
+      if (inputFile.type === 'manual') {
+        fileIndex++
+        const res = await ipcRenderer.sendSync('make-output-file', {index: fileIndex, dic: outputDic})
+        if (!res.result) {
+          commit('updateBuildError', inputFile.name + ': ' + (res.error || '执行失败或超时'))
+        }
+      } else {
+        for (let j = 0; j < inputFile.count; j++) {
+          fileIndex++
+          const res = await ipcRenderer.sendSync('make-output-file', {index: fileIndex, dic: outputDic})
+          if (!res.result) {
+            commit('updateBuildError', inputFile.name + ': ' + (res.error || '执行失败或超时'))
+          }
+        }
       }
 
       commit('updateProgress', Number(((i + state.inputFileList.length) / (state.inputFileList.length * 2) * 100).toFixed()))

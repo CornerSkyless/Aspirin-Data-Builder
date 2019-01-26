@@ -21,6 +21,7 @@
                  :class="{'menu-item-active':$store.state.activePanel==='InputFile' && $store.state.activeInputFileIndex === i}"
                  @click="goToInputFile(i)">
                 <a-icon :type="inputFile.type==='manual' ? 'file' : 'code-sandbox'"/>
+                <span v-if="inputFile.type==='code'">{{inputFile.count}} *</span>
                 {{inputFile.name}}
             </div>
         </div>
