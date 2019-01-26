@@ -18,6 +18,7 @@ async function delay (time) {
 }
 
 const state = {
+  version: '0.2.0',
   fileLocation: '',
   rightCode: '',
   activePanel: 'RightCode',

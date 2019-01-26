@@ -17,11 +17,19 @@
         >
             <template slot="footer"></template>
             <div style="text-align: center;margin-bottom: 10px">
-                <a-progress type="circle" :percent="$store.state.progress" :width="80" :status="status" />
+                <a-progress type="circle" :percent="$store.state.progress" :width="80" :status="status"/>
 
             </div>
             <p v-if="!$store.state.buildError">{{$store.state.buildStatus}}</p>
             <p>{{$store.state.buildError}}</p>
+        </a-modal>
+        <a-modal
+                v-model="needUpdate"
+                title="有新版本啦"
+                @ok="downloadNewest"
+        >
+            <h3 style="margin-bottom: 15px">最新版本 {{latest.version}}</h3>
+            <p v-for="update of latest.updates">{{update}}</p>
         </a-modal>
     </div>
 </template>
@@ -36,6 +44,12 @@
     export default {
       name: 'landing-page',
       components: {InputFilePanel, RightCodePanel, HeaderBar, SideBar, TopBar},
+      data () {
+        return {
+          needUpdate: false,
+          latest: {}
+        }
+      },
       computed: {
         status () {
           if (this.$store.state.buildError) return 'exception'
@@ -51,12 +65,23 @@
         }
       },
       methods: {
-        open (link) {
-          this.$electron.shell.openExternal(link)
+        downloadNewest () {
+          this.$electron.shell.openExternal(this.latest.url)
+          this.needUpdate = false
         }
       },
       async created () {
         await this.$store.dispatch('updateIsBuilding', false)
+        this.$http.get('https://public.noi.top/AspirinDataBuilderVersions.json').then(
+          (res) => {
+            if (res && res.data) {
+              this.latest = res.data[0]
+              if (this.latest.version > this.$store.state.version) this.needUpdate = true
+            }
+          }
+        ).catch(e => {
+          console.log(e)
+        })
       }
     }
 </script>
