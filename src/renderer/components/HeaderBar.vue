@@ -81,13 +81,16 @@
             await this.$store.dispatch('saveProjectFile')
             await this.$message.success('保存成功')
           } catch (e) {
-            await this.$message.error('保存失败：' + JSON.stringify(e.message))
+            this.$message.error('保存失败：' + e.message).then()
+            if (e.message.includes('另存为')) this.anotherModal = true
           }
         },
         async build () {
           if (this.$store.getters.hasEmpty) await this.$message.error(this.$store.getters.hasEmpty)
-          else if (!(await ipcRenderer.sendSync('check-dictionary', this.$store.getters.fileDic))) await this.$message.error('项目文件目录不存在，请先尝试另存为项目')
-          else {
+          else if (!this.$store.state.fileLocation || !(await ipcRenderer.sendSync('check-dictionary', this.$store.getters.fileDic))) {
+            this.$message.error('项目文件目录不存在，请先尝试另存为项目').then()
+            this.anotherModal = true
+          } else {
             const res = await this.$store.dispatch('build')
             if (res) {
               this.$success({
