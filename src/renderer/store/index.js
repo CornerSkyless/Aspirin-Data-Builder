@@ -86,8 +86,8 @@ const mutations = {
     state.compileCommand = newState.compileCommand || 'g++ -o2 $cppPath$'
     state.inputFileList = newState.inputFileList.map(i => {
       if (i.type === 'code' && !i.count) i.count = 1
-      if (i.type === 'code' && !i.args) i.args = Array(i.count).fill(0)
-
+      if (!i.args) i.args = Array(i.count).fill(0)
+      console.log(i)
       return i
     })
     state.activeInputFileIndex = newState.activeInputFileIndex
