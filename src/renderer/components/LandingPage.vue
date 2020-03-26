@@ -101,11 +101,14 @@
 
     .app-window {
         display: flex;
-
+        width: 100%;
         .app-right {
             background: #eef0f3;
             height: calc(100vh - 22px);
             width: 100%;
+            overflow: hidden;
+            flex: 1;
+            /*flex-grow: 1;*/
         }
     }
 

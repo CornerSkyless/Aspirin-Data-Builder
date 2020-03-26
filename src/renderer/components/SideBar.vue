@@ -51,9 +51,10 @@
     .app-side-bar {
         background: #001529;
         height: calc(100vh - 22px);
-        width: 300px;
+        width: 260px;
         border-top: #00080F 1px solid;
-        overflow: hidden;
+        overflow-x: hidden;
+        flex-shrink: 0;
         .logo {
             height: 100px;
             padding: 20px;

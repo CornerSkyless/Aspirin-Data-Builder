@@ -130,9 +130,11 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      isBrowser: false,
+      isDevelopment: process.env.NODE_ENV !== 'production',
       nodeModules: process.env.NODE_ENV !== 'production'
-        ? path.resolve(__dirname, '../node_modules')
-        : false
+          ? path.resolve(__dirname, '../node_modules')
+          : false
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()

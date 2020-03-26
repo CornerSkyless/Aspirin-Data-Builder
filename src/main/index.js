@@ -4,6 +4,8 @@ import {app, BrowserWindow, ipcMain, dialog, Menu} from 'electron'
 const exec = require('child_process').exec
 
 const fs = require('fs')
+let path = require('path')
+let iconv = require('iconv-lite')
 
 /**
  * Set `__static` path to static files in production
@@ -94,14 +96,60 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     height: 600,
     resizable: false,
-    width: 1000,
-    frame: false
+    width: 1200,
+    frame: false,
+    webPreferences: {
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true
+    }
   })
 
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
     mainWindow = null
+  })
+}
+
+function removeDir (dir) {
+  let files = fs.readdirSync(dir)
+  for (let i = 0; i < files.length; i++) {
+    let newPath = path.join(dir, files[i])
+    let stat = fs.statSync(newPath)
+    if (stat.isDirectory()) {
+      // 如果是文件夹就递归下去
+      removeDir(newPath)
+    } else {
+      // 删除文件
+      fs.unlinkSync(newPath)
+    }
+  }
+  fs.rmdirSync(dir)// 如果文件夹是空的，就将自己删除掉
+}
+
+const encoding = 'cp936'
+const binaryEncoding = 'binary'
+
+function iconvDecode (str = '') {
+  return iconv.decode(Buffer.from(str, binaryEncoding), encoding)
+}
+
+/*
+ * 复制目录、子目录，及其中的文件
+ * @param src {String} 要复制的目录
+ * @param dist {String} 复制到目标目录
+ */
+function copyDir (src, dist) {
+  const paths = fs.readdirSync(src)
+  paths.forEach(pa => {
+    let _src = src + pa
+    let _dist = dist + pa
+    let stat = fs.statSync(_src)
+    if (stat.isFile()) {
+      fs.writeFileSync(_dist, fs.readFileSync(_src))
+    } else {
+      copyDir(_src, _dist)
+    }
   })
 }
 
@@ -191,7 +239,25 @@ ipcMain.on('check-dictionary', (event, dic) => {
 })
 
 ipcMain.on('make-dictionary', (event, dic) => {
+  if (fs.existsSync(dic)) {
+    removeDir(dic)
+  }
   fs.mkdirSync(dic)
+  event.returnValue = true
+})
+
+ipcMain.on('copy-dictionary', (event, {from, to}) => {
+  if (!fs.existsSync(to)) {
+    fs.mkdirSync(to)
+  }
+  copyDir(from, to)
+  event.returnValue = true
+})
+
+ipcMain.on('delete-dictionary', (event, dic) => {
+  if (fs.existsSync(dic)) {
+    removeDir(dic)
+  }
   event.returnValue = true
 })
 
@@ -200,21 +266,22 @@ ipcMain.on('write-text-input-file', (event, {text, location}) => {
   event.returnValue = true
 })
 
-ipcMain.on('make-input-file', (event, {inputFile, index, dic}) => {
+ipcMain.on('make-input-file', (event, {inputFile, index, dic, compileCommand, args}) => {
   const options = {
     encoding: 'utf8',
-    timeout: 10000
+    timeout: 1200000
   }
 
   const cppPath = dic + index + '.cpp'
   const exePath = dic + index
   fs.writeFileSync(cppPath, inputFile.content, 'utf-8')
-  exec(`g++ -o2 ${cppPath} -o ${exePath}`, function (error, stdout, stderr) {
-    if (error) event.returnValue = {result: false, error: stderr}
+  compileCommand = compileCommand.replace('$cppPath$', cppPath)
+  exec(`${compileCommand} -o ${exePath}`, function (error, stdout, stderr) {
+    if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
     else {
       const inputFilePath = dic + index + '.in'
-      exec(`${exePath} >${inputFilePath} `, options, function (error, stdout, stderr) {
-        if (error) event.returnValue = {result: false, error: stderr}
+      exec(`${exePath} ${args || ''} >${inputFilePath} `, options, function (error, stdout, stderr) {
+        if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
         fs.unlinkSync(cppPath)
         if (fs.existsSync(exePath)) fs.unlinkSync(exePath)
         else fs.unlinkSync(exePath + '.exe')
@@ -224,12 +291,13 @@ ipcMain.on('make-input-file', (event, {inputFile, index, dic}) => {
   })
 })
 
-ipcMain.on('make-right-code', (event, {rightCode, dic}) => {
+ipcMain.on('make-right-code', (event, {rightCode, dic, compileCommand}) => {
   const cppPath = dic + 'rightCode.cpp'
   const exePath = dic + 'rightCode'
   fs.writeFileSync(cppPath, rightCode, 'utf-8')
-  exec(`g++ -o2 ${cppPath} -o ${exePath}`, function (error, stdout, stderr) {
-    if (error) event.returnValue = {result: false, error: stderr}
+  compileCommand = compileCommand.replace('$cppPath$', cppPath)
+  exec(`${compileCommand} -o ${exePath}`, function (error, stdout, stderr) {
+    if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
     event.returnValue = {result: true}
   })
 })
@@ -240,10 +308,10 @@ ipcMain.on('make-output-file', (event, {index, dic}) => {
   const exePath = dic + 'rightCode'
   const options = {
     encoding: 'utf8',
-    timeout: 10000
+    timeout: 1200000
   }
   exec(`${exePath} >${outputFilePath} < ${inputFilePath} `, options, function (error, stdout, stderr) {
-    if (error) event.returnValue = {result: false, error: stderr}
+    if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
     event.returnValue = {result: true}
   })
 })

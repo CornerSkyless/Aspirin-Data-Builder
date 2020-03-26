@@ -15,7 +15,17 @@
                 <a-button type="danger" @click="deleteActiveInputFile" v-if="$store.state.inputFileList.length>1">删除</a-button>
             </a-button-group>
         </div>
-        <CodeInput :code.sync="activeInputFileContent"/>
+        <div class="input-file-panel-main">
+
+            <CodeInput class="input-file-panel-right" :code.sync="activeInputFileContent"/>
+            <div v-if="activeInputFileType === 'code'" class="input-file-panel-left">
+                <strong style="margin-bottom: 5px">运行指令参数 (args)</strong>
+                <div  v-for="(arg,i) in activeInputFileArgs">
+                    <a-input style="margin-bottom: 5px" placeholder="请输入文件名" :value="activeInputFileArgs[i]" @input="updateActiveInputFileArgsItem(i,$event.target.value)"/>
+                </div>
+            </div>
+
+        </div>
         <a-modal
                 title="重命名当前输入文件"
                 v-model="renameModal"
@@ -41,6 +51,9 @@
         }
       },
       methods: {
+        async updateActiveInputFileArgsItem (index, value) {
+          await this.$store.dispatch('updateActiveInputFileArgsItem', {value, index})
+        },
         async renameActiveInputFile () {
           if (this.renameText) {
             await this.$store.dispatch('renameActiveInputFile', this.renameText)
@@ -70,6 +83,11 @@
             await this.$store.dispatch('updateActiveInputFileContent', value)
           }
         },
+        activeInputFileArgs: {
+          get () {
+            return this.$store.getters.activeInputFileArgs
+          }
+        },
         activeInputFileType: {
           get () {
             return this.$store.getters.activeInputFileType
@@ -93,6 +111,23 @@
 <style scoped lang="scss">
     .input-file-panel {
         padding: 10px 20px;
+
+        .input-file-panel-main{
+            display: flex;
+            .input-file-panel-left{
+                display: flex;
+                flex-direction: column;
+                flex-shrink: 0;
+                padding-left: 10px;
+                overflow-y: scroll;
+                height: 450px;
+            }
+            .input-file-panel-right{
+                width: 100%;
+                overflow: hidden;
+                flex: 1;
+            }
+        }
     }
 
 </style>

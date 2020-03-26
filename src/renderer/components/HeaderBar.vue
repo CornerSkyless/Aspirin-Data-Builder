@@ -5,6 +5,10 @@
             新建项目
         </a-button>
         <div>
+            <a-button @click="openSetting">
+                <a-icon type="setting"/>
+                设置
+            </a-button>
             <a-button @click="openExistFile">
                 <a-icon type="folder-open"/>
                 打开已有项目
@@ -43,6 +47,18 @@
         >
             <a-input placeholder="请输入项目名称" v-model="projectName"/>
         </a-modal>
+        <a-modal
+                title="设置"
+                v-model="settingModal"
+                @ok="saveSetting"
+                cancelText="取消"
+                okText="确认"
+        >
+            <strong>编译指令 【请注意必须包含 $cppPath$，它是文件名的转义】</strong>
+            <a-input style="margin: 10px 0" placeholder="请输入编译指令" v-model="compileCommand"/>
+            <span>当前设置下，执行的编译指令为：<br></span>
+            <span style="color: #97087f">{{(compileCommand.replace(`$cppPath$`,`code.cpp`))}}</span>
+        </a-modal>
 
     </div>
 </template>
@@ -55,10 +71,16 @@
         return {
           newModal: false,
           anotherModal: false,
-          projectName: ''
+          settingModal: false,
+          projectName: '',
+          compileCommand: ''
         }
       },
       methods: {
+        openSetting () {
+          this.compileCommand = this.$store.state.compileCommand
+          this.settingModal = true
+        },
         async openExistFile () {
           try {
             await this.$store.dispatch('openExistFile')
@@ -70,6 +92,11 @@
           if (!this.projectName) await this.$message.error('项目名称不能为空')
           this.newModal = false
           await this.$store.dispatch('newProjectFile', this.projectName)
+        },
+        async saveSetting () {
+          if (!this.compileCommand) await this.$message.error('编译指令不能为空')
+          this.settingModal = false
+          await this.$store.dispatch('updateCompileCommand', this.compileCommand)
         },
         async anotherSaveProject () {
           if (!this.projectName) await this.$message.error('项目名称不能为空')
