@@ -1,6 +1,6 @@
 {
   "name": "aspirin-data-builder",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "cornerskyless <573196853@qq.com>",
   "description": "Data Builder",
   "license": null,
@@ -29,7 +29,7 @@
     ],
     "mac": {
       "icon": "build/icons/icon.icns",
-      "target":"pkg"
+      "target": "pkg"
     },
     "win": {
       "icon": "build/icons/icon.ico"

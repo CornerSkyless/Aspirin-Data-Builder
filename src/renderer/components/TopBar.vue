@@ -47,6 +47,7 @@
             display: flex;
             align-items: center;
 
+            -webkit-app-region: no-drag;
 
             .button-area-btn {
                 height: 12px;
