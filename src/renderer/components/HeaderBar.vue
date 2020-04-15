@@ -54,10 +54,10 @@
                 cancelText="取消"
                 okText="确认"
         >
-            <strong>编译指令 【请注意必须包含 $cppPath$，它是文件名的转义】</strong>
+            <strong>编译指令 【请注意必须包含 $cppPath$，它是文件名路径的转义】</strong>
             <a-input style="margin: 10px 0" placeholder="请输入编译指令" v-model="compileCommand"/>
             <span>当前设置下，执行的编译指令为：<br></span>
-            <span style="color: #97087f">{{(compileCommand.replace(`$cppPath$`,`code.cpp`))}}</span>
+            <span style="color: #97087f">{{(compileCommand.replace(/\$cppPath\$/g,`/User/xxxxx/code.cpp`))}}</span>
         </a-modal>
 
     </div>

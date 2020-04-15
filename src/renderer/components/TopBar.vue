@@ -8,7 +8,7 @@
                 <a-icon type="minus"/>
             </div>
         </div>
-        <span>Aspirin Data Builder | {{$store.state.fileLocation || '数据生成器'}}</span>
+        <span>Aspirin Data Builder {{$store.state.version}} | {{$store.state.fileLocation || '数据生成器'}}</span>
     </div>
 </template>
 

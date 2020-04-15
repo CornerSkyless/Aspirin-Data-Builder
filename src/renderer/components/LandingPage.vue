@@ -28,8 +28,11 @@
                 title="有新版本啦"
                 @ok="downloadNewest"
         >
-            <h3 style="margin-bottom: 15px">当前版本 {{$store.state.version}} > 最新版本 {{latest.version}}</h3>
-            <p v-for="update of latest.updates">{{update}}</p>
+            <h3 style="margin-bottom: 15px">当前版本 {{$store.state.version}} | 最新版本 {{latest.version}}</h3>
+            <div v-for="version of versions">
+                <h4>{{version.version}}</h4>
+                <p v-for="update of version.updates">- {{update}}</p>
+            </div>
         </a-modal>
     </div>
 </template>
@@ -47,7 +50,8 @@
       data () {
         return {
           needUpdate: false,
-          latest: {}
+          latest: {},
+          versions: []
         }
       },
       computed: {
@@ -71,12 +75,14 @@
         }
       },
       async created () {
+        this.$store.commit('refreshVersion')
         await this.$store.dispatch('updateIsBuilding', false)
-        this.$http.get('https://public.noi.top/AspirinDataBuilderVersions.json').then(
+        this.$http.get('https://public.noi.top/AspirinDataBuilderVersions.json?' + (new Date()).valueOf()).then(
           (res) => {
             if (res && res.data) {
               this.latest = res.data[0]
               if (this.latest.version > this.$store.state.version) this.needUpdate = true
+              this.versions = res.data
             }
           }
         ).catch(e => {

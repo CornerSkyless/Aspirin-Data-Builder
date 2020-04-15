@@ -18,11 +18,10 @@ async function delay (time) {
 }
 
 const defaultConfig = {
-  version: '0.3.0',
   fileLocation: '',
   rightCode: '',
   activePanel: 'RightCode',
-  compileCommand: 'g++ -o2 $cppPath$',
+  compileCommand: 'g++ -O2 $cppPath$',
   inputFileList: [
     {type: 'manual', content: '', name: '文件 1', count: 1, args: []},
     {type: 'manual', content: '', name: '文件 2', count: 1, args: []},
@@ -30,8 +29,9 @@ const defaultConfig = {
   ],
   activeInputFileIndex: null
 }
-
-const state = {
+const currentVersion = '0.3.1'
+export const state = {
+  version: currentVersion,
   ...defaultConfig,
   isBuilding: false,
   buildStatus: '',
@@ -83,20 +83,19 @@ const mutations = {
   updateState (state, newState) {
     state.rightCode = newState.rightCode
     state.activePanel = newState.activePanel
-    state.compileCommand = newState.compileCommand || 'g++ -o2 $cppPath$'
+    state.compileCommand = newState.compileCommand || 'g++ -O2 $cppPath$'
     state.inputFileList = newState.inputFileList.map(i => {
       if (i.type === 'code' && !i.count) i.count = 1
       if (!i.args) i.args = Array(i.count).fill(0)
-      console.log(i)
       return i
     })
     state.activeInputFileIndex = newState.activeInputFileIndex
   },
-  newState (state) {
-    state = {...state, ...defaultConfig}
-  },
   updateRightCode (state, value) {
     state.rightCode = value
+  },
+  refreshVersion (state) {
+    state.version = currentVersion
   },
   updateIsBuilding (state, value) {
     state.isBuilding = value
@@ -210,10 +209,10 @@ const actions = {
       throw new Error(res.error)
     }
   },
-  async newProjectFile ({commit}, value) {
+  async newProjectFile ({commit, state}, value) {
     let res = await ipcRenderer.sendSync('new-acdb-file', {projectName: value, state: defaultConfig})
     if (res) {
-      commit('newState')
+      commit('updateState', {...state, ...defaultConfig})
       commit('updateFileLocation', res)
     }
   },

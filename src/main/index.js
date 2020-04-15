@@ -275,7 +275,7 @@ ipcMain.on('make-input-file', (event, {inputFile, index, dic, compileCommand, ar
   const cppPath = dic + index + '.cpp'
   const exePath = dic + index
   fs.writeFileSync(cppPath, inputFile.content, 'utf-8')
-  compileCommand = compileCommand.replace('$cppPath$', cppPath)
+  compileCommand = compileCommand.replace(/\$cppPath\$/g, cppPath)
   exec(`${compileCommand} -o ${exePath}`, function (error, stdout, stderr) {
     if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
     else {
@@ -295,7 +295,7 @@ ipcMain.on('make-right-code', (event, {rightCode, dic, compileCommand}) => {
   const cppPath = dic + 'rightCode.cpp'
   const exePath = dic + 'rightCode'
   fs.writeFileSync(cppPath, rightCode, 'utf-8')
-  compileCommand = compileCommand.replace('$cppPath$', cppPath)
+  compileCommand = compileCommand.replace(/\$cppPath\$/g, cppPath)
   exec(`${compileCommand} -o ${exePath}`, function (error, stdout, stderr) {
     if (error) event.returnValue = {result: false, error: iconvDecode(stderr)}
     event.returnValue = {result: true}
