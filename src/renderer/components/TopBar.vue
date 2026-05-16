@@ -8,7 +8,13 @@
                 <a-icon type="minus"/>
             </div>
         </div>
-        <span>Aspirin Data Builder {{$store.state.version}} | {{$store.state.fileLocation || '数据生成器'}}</span>
+        <span class="app-top-bar__title">
+            <span class="app-top-bar__name">Aspirin Data Builder</span>
+            <span class="app-top-bar__sep" aria-hidden="true">·</span>
+            <span class="app-top-bar__ver">v{{$store.state.version}}</span>
+            <span class="app-top-bar__sep" aria-hidden="true">·</span>
+            <span class="app-top-bar__path" :title="$store.state.fileLocation || '数据生成器'">{{$store.state.fileLocation || '数据生成器'}}</span>
+        </span>
     </div>
 </template>
 
@@ -30,14 +36,50 @@
 <style scoped lang="scss">
     .app-top-bar {
         width: 100%;
-        background: #001529;
-        height: 22px;
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 55%, #0c1222 100%);
+        height: var(--adb-topbar-height, 28px);
         -webkit-user-select: none;
         -webkit-app-region: drag;
-        color: #b1b7bf;
+        color: rgba(226, 232, 240, 0.82);
         text-align: center;
         position: relative;
-        font-size: 14px;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+
+        &__title {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: calc(100% - 120px);
+            padding: 0 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &__name {
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        &__ver {
+            font-variant-numeric: tabular-nums;
+            opacity: 0.85;
+        }
+
+        &__sep {
+            opacity: 0.35;
+            font-weight: 400;
+        }
+
+        &__path {
+            opacity: 0.75;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         .button-area {
             position: absolute;
@@ -50,14 +92,20 @@
             -webkit-app-region: no-drag;
 
             .button-area-btn {
-                height: 12px;
-                width: 12px;
-                border-radius: 6px;
-                margin-left: 8px;
+                height: 13px;
+                width: 13px;
+                border-radius: 50%;
+                margin-left: 9px;
                 cursor: pointer;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+                transition: transform 0.15s ease, filter 0.15s ease;
+
+                &:active {
+                    transform: scale(0.92);
+                }
 
                 i {
                     font-size: 8px;
@@ -74,13 +122,13 @@
             }
 
             .button-area-close-btn {
-                background: #f75c54;
-                color: #97087f;
+                background: #ff5f57;
+                color: rgba(80, 20, 15, 0.95);
             }
 
             .button-area-minus-btn {
-                background: #febc49;
-                color: #985619;
+                background: #febc2e;
+                color: rgba(90, 55, 10, 0.95);
             }
         }
     }
