@@ -1,28 +1,30 @@
 <template>
     <div class="app-side-bar">
         <div class="logo">
-            <img id="logo" src="~@/assets/logo.png" style="height: 50px">
+            <img id="logo" src="~@/assets/logo.png" alt="Aspirin Data Builder" class="logo__img">
         </div>
-        <div class="menu-item" @click="goToRightCode"
-             :class="{'menu-item-active':$store.state.activePanel==='RightCode'}">
-            <a-icon type="code"/>
-            标程
+        <div class="menu-item menu-item--nav" @click="goToRightCode"
+             :class="{'menu-item--active':$store.state.activePanel==='RightCode'}">
+            <a-icon type="code" class="menu-item__icon"/>
+            <span class="menu-item__label">标程</span>
         </div>
-        <div class="menu-item menu-item-head">
-            <span>
-                <a-icon type="copy"/>输入文件列表
+        <div class="menu-item menu-item--section">
+            <span class="menu-item__head">
+                <a-icon type="copy" class="menu-item__icon"/>输入文件列表
             </span>
-            <a-button ghost size="small" @click="addInputFile">添加</a-button>
-
+            <a-button type="primary" ghost size="small" class="menu-item__add" @click.stop="addInputFile">添加</a-button>
         </div>
         <div class="menu-item-group">
-            <div class="menu-item menu-item"
+            <div class="menu-item menu-item--file"
                  v-for="(inputFile,i) in $store.state.inputFileList"
-                 :class="{'menu-item-active':$store.state.activePanel==='InputFile' && $store.state.activeInputFileIndex === i}"
+                 :key="i"
+                 :class="{'menu-item--active':$store.state.activePanel==='InputFile' && $store.state.activeInputFileIndex === i}"
                  @click="goToInputFile(i)">
-                <a-icon :type="inputFile.type==='manual' ? 'file' : 'code-sandbox'"/>
-                <span v-if="inputFile.type==='code'">{{inputFile.count}} *</span>
-                {{inputFile.name}}
+                <a-icon :type="inputFile.type==='manual' ? 'file' : 'code-sandbox'" class="menu-item__icon"/>
+                <span class="menu-item__label">
+                    <span v-if="inputFile.type==='code'" class="menu-item__badge">{{inputFile.count}}×</span>
+                    {{inputFile.name}}
+                </span>
             </div>
         </div>
     </div>
@@ -49,86 +51,161 @@
 
 <style scoped lang="scss">
     .app-side-bar {
-        background: #001529;
-        height: calc(100vh - 22px);
-        width: 260px;
-        border-top: #00080F 1px solid;
+        --adb-sb-pad-x: 14px;
+        background: linear-gradient(180deg, var(--adb-sidebar, #0f172a) 0%, var(--adb-sidebar-deep, #020617) 72%);
+        height: calc(100vh - var(--adb-topbar-height, 28px));
+        width: var(--adb-sidebar-width, 260px);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-right: 1px solid rgba(0, 0, 0, 0.35);
         overflow-x: hidden;
         flex-shrink: 0;
+        box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+
         .logo {
-            height: 100px;
-            padding: 20px;
-            color: white;
+            height: 96px;
+            padding: 18px var(--adb-sb-pad-x);
             display: flex;
             justify-content: center;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .menu-item-head {
-            opacity: .65 !important;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .logo__img {
+            height: 52px;
+            width: auto;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
         }
 
         .menu-item-group {
-            background: #000f16;
-            max-height: calc(100vh - 240px);
-            .menu-item {
-                padding-left: 40px;
-            }
+            background: var(--adb-sidebar-group, rgba(2, 6, 23, 0.55));
+            max-height: calc(100vh - var(--adb-topbar-height, 28px) - 236px);
             overflow: auto;
-            &::-webkit-scrollbar
-            {
-                width: 5px;
-                height: 10px;
-                background-color: #F5F5F5;
+            margin-top: 2px;
+            padding: 6px 0 12px;
+
+            &::-webkit-scrollbar {
+                width: 6px;
             }
 
-            /*定义滚动条轨道 内阴影+圆角*/
-            &::-webkit-scrollbar-track
-            {
-                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-                border-radius: 0;
-                background-color: black;
+            &::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
             }
 
-            /*定义滑块 内阴影+圆角*/
-            &::-webkit-scrollbar-thumb
-            {
-                border-radius: 10px;
-                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-                background-color: #555;
+            &::-webkit-scrollbar-thumb {
+                border-radius: 6px;
+                background: rgba(148, 163, 184, 0.35);
+
+                &:hover {
+                    background: rgba(148, 163, 184, 0.5);
+                }
             }
 
+            &:empty {
+                padding: 8px var(--adb-sb-pad-x);
+            }
         }
 
         .menu-item {
-            padding: 12px 20px;
-            opacity: .65;
-            color: white;
+            margin: 0 10px;
+            padding: 11px 14px;
+            border-radius: var(--adb-radius-sm, 8px);
+            color: rgba(226, 232, 240, 0.72);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.35;
+            transition:
+                color 0.18s var(--adb-ease-out, ease),
+                background 0.18s var(--adb-ease-out, ease),
+                opacity 0.18s var(--adb-ease-out, ease);
 
-            i {
-                margin-right: 10px;
+            &:hover:not(.menu-item--section) {
+                color: #f8fafc;
+                background: rgba(255, 255, 255, 0.06);
             }
+        }
+
+        .menu-item__icon {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .menu-item__label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .menu-item__badge {
+            display: inline-block;
+            margin-right: 6px;
+            padding: 0 5px;
+            font-size: 11px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: rgba(191, 219, 254, 0.95);
+            background: rgba(37, 99, 235, 0.35);
+            border-radius: 4px;
+            vertical-align: 1px;
+        }
+
+        .menu-item--nav {
+            margin-top: 10px;
+        }
+
+        .menu-item--section {
+            margin-top: 16px;
+            opacity: 1;
+            color: rgba(148, 163, 184, 0.92);
+            cursor: default;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .menu-item__head {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: none;
+        }
+
+        .menu-item__add {
+            border-color: rgba(96, 165, 250, 0.45) !important;
+            color: #93c5fd !important;
+            font-size: 12px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 6px;
 
             &:hover {
-                opacity: 1;
-                transition: opacity .3s cubic-bezier(.645, .045, .355, 1) .3s;
+                border-color: rgba(147, 197, 253, 0.85) !important;
+                color: #fff !important;
+                background: rgba(37, 99, 235, 0.25) !important;
             }
         }
 
-        .menu-item-active {
-            opacity: 1;
-            background: #1890ff;
-            border-right: 5px solid #1062AE;
+        .menu-item--file {
+            margin: 3px 10px 3px 18px;
+            padding-left: 12px;
+            border-left: 2px solid transparent;
         }
 
-        .menu-item-group-active {
-            opacity: 1;
+        .menu-item--active {
+            color: #f8fafc !important;
+            background: linear-gradient(90deg, var(--adb-accent-soft, rgba(37, 99, 235, 0.2)) 0%, rgba(37, 99, 235, 0.08) 100%) !important;
+            box-shadow: inset 3px 0 0 var(--adb-accent, #2563eb);
         }
 
+        .menu-item--active .menu-item__icon {
+            color: #93c5fd;
+        }
     }
 
 </style>

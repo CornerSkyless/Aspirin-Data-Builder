@@ -25,7 +25,11 @@
 
 <style scoped lang="scss">
     .right-code-panel {
-        padding: 52px 20px 0 20px;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 20px 20px;
     }
 
 </style>
