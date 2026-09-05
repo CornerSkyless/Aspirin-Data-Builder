@@ -60,20 +60,22 @@ function startRenderer () {
     })
 
     const server = new WebpackDevServer(
-      compiler,
       {
-        contentBase: path.join(__dirname, '../'),
-        quiet: true,
-        before (app, ctx) {
-          app.use(hotMiddleware)
-          ctx.middleware.waitUntilValid(() => {
-            resolve()
-          })
+        hot: true,
+        static: {
+          directory: path.join(__dirname, '../')
+        },
+        setupMiddlewares (middlewares, devServer) {
+          devServer.app.use(hotMiddleware)
+          return middlewares
         }
-      }
+      },
+      compiler
     )
 
-    server.listen(9080)
+    server.start().then(() => {
+      resolve()
+    })
   })
 }
 
@@ -127,7 +129,7 @@ function startElectron () {
   }
 
   electronProcess = spawn(electron, args)
-  
+
   electronProcess.stdout.on('data', data => {
     electronLog(data, 'blue')
   })

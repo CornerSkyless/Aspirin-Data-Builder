@@ -6,7 +6,9 @@ const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
+const formatter = require('eslint-friendly-formatter')
 
 let mainConfig = {
   entry: {
@@ -18,17 +20,6 @@ let mainConfig = {
   module: {
     rules: [
       {
-        test: /\.(js)$/,
-        enforce: 'pre',
-        exclude: /node_modules/,
-        use: {
-          loader: 'eslint-loader',
-          options: {
-            formatter: require('eslint-friendly-formatter')
-          }
-        }
-      },
-      {
         test: /\.js$/,
         use: 'babel-loader',
         exclude: /node_modules/
@@ -39,16 +30,17 @@ let mainConfig = {
       }
     ]
   },
-  node: {
-    __dirname: process.env.NODE_ENV !== 'production',
-    __filename: process.env.NODE_ENV !== 'production'
-  },
   output: {
     filename: '[name].js',
     libraryTarget: 'commonjs2',
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
+    new ESLintPlugin({
+      extensions: ['js'],
+      formatter: formatter,
+      failOnError: false
+    }),
     new webpack.NoEmitOnErrorsPlugin()
   ],
   resolve: {
@@ -72,8 +64,17 @@ if (process.env.NODE_ENV !== 'production') {
  * Adjust mainConfig for production settings
  */
 if (process.env.NODE_ENV === 'production') {
+  mainConfig.optimization = {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: { drop_console: true }
+        }
+      })
+    ]
+  }
+
   mainConfig.plugins.push(
-    new BabiliWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     })
